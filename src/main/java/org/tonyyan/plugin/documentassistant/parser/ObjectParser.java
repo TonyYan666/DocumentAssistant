@@ -4,7 +4,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.util.PsiUtil;
 import org.tonyyan.plugin.documentassistant.contact.CommonContact;
-import org.tonyyan.plugin.documentassistant.contact.MyContact;
 import org.tonyyan.plugin.documentassistant.definition.FieldDefinition;
 import org.tonyyan.plugin.documentassistant.parser.translator.TypeTranslator;
 import org.tonyyan.plugin.documentassistant.utils.Convertor;
@@ -45,6 +44,12 @@ public class ObjectParser extends Parser {
                 PsiClass genericsClass = MyPsiSupport.getPsiClass(genericsType);
                 psiFieldList = this.getAvailablePsiField(genericsClass, genericsClass.getAllFields());
             }
+        } else if (TypeTranslator.TYPE_MAP.equals(type)) {
+            PsiType genericsType = MyPsiSupport.getGenericsType(psiType, 1);
+            if (genericsType != null) {
+                PsiClass genericsClass = MyPsiSupport.getPsiClass(genericsType);
+                psiFieldList = this.getAvailablePsiField(genericsClass, genericsClass.getAllFields());
+            }
         } else {
             psiFieldList = this.getAvailablePsiField(this.psiClass, psiClass.getAllFields());
         }
@@ -72,6 +77,9 @@ public class ObjectParser extends Parser {
     public List<PsiField> getAvailablePsiField(PsiClass psiClass, PsiField[] psiFields) {
         List<PsiField> psiFieldList = new ArrayList<>();
         for (PsiField psiField : psiFields) {
+            if (MyPsiSupport.getPsiAnnotation(psiField, CommonContact.CONSTRAINTS_JSONIGNORE) != null) {
+                continue;
+            }
             if (MyPsiSupport.findPsiMethod(psiClass, Convertor.getFieldGetterName(psiField.getName())) != null) {
                 psiFieldList.add(psiField);
             }
@@ -106,10 +114,8 @@ public class ObjectParser extends Parser {
         String dec = JavaDocUtils.getText(psiField.getDocComment());
         String name = psiField.getName();
 
-        boolean require = MyPsiSupport.getPsiAnnotation(psiField, MyContact.VALIDATOR_NOTEMPTYCHECK) != null;
-        if (!require) {
-            require = MyPsiSupport.getPsiAnnotation(psiField, CommonContact.CONSTRAINTS_NOTNULL) != null;
-        }
+        boolean require = this.getIsRequire(psiField);
+
         definition.setLayer(layer);
         definition.setName(name);
         definition.setDesc(dec);
@@ -144,6 +150,15 @@ public class ObjectParser extends Parser {
                 objectParser.parseDefinition();
                 definition.setSubFieldDefinitions(objectParser.getFieldDefinitions());
             }
+        } else if (definition.getType().equals(TypeTranslator.TYPE_MAP)) {
+            PsiType valueGenericsType = MyPsiSupport.getGenericsType(psiField.getType(), 1);
+            psiClass = MyPsiSupport.getPsiClass(valueGenericsType);
+            if (psiClass != null) {
+                ObjectParser objectParser = new ObjectParser(valueGenericsType, this.project, layer + 1);
+                objectParser.parseDefinition();
+                definition.setSubFieldDefinitions(objectParser.getFieldDefinitions());
+            }
+
         }
         return definition;
     }

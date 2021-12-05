@@ -43,25 +43,25 @@ public class ParameterParser extends Parser {
         doParse();
     }
 
-    public void doParse(){
+    public void doParse() {
         if (psiParameters == null || psiParameters.length == 0) {
             return;
         }
-        for (PsiParameter psiParameter : this.psiParameters){
+        for (PsiParameter psiParameter : this.psiParameters) {
             FieldDefinition definition = this.parseSingleParameterDefinition(psiParameter);
-            if(definition!=null){
+            if (definition != null) {
                 this.fieldDefinitions.add(definition);
             }
         }
     }
 
 
-    public FieldDefinition parseSingleParameterDefinition(PsiParameter psiParameter){
-        if(psiParameter == null){
+    public FieldDefinition parseSingleParameterDefinition(PsiParameter psiParameter) {
+        if (psiParameter == null) {
             return null;
         }
         String paramName = psiParameter.getName();
-        String desc = JavaDocUtils.getParamsDesc(psiMethod.getDocComment(),paramName);
+        String desc = JavaDocUtils.getParamsDesc(psiMethod.getDocComment(), paramName);
         FieldDefinition definition = new FieldDefinition();
         definition.setName(paramName);
         definition.setLayer(0);
@@ -73,10 +73,7 @@ public class ParameterParser extends Parser {
         } else {
             definition.setType(TypeTranslator.docTypeTranslate(fieldClass.getQualifiedName()));
         }
-        boolean require = MyPsiSupport.getPsiAnnotation(psiParameter, MyContact.VALIDATOR_NOTEMPTYCHECK) != null;
-        if (!require) {
-            require = MyPsiSupport.getPsiAnnotation(psiParameter, CommonContact.CONSTRAINTS_NOTNULL) != null;
-        }
+        boolean require = this.getIsRequire(psiParameter);
         definition.setRequire(require);
         return definition;
     }

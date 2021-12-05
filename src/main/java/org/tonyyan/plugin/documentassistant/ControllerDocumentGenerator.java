@@ -59,7 +59,6 @@ public class ControllerDocumentGenerator extends AnAction {
         dialog.pack();
         dialog.setLocation((int) (screensize.width * 0.5) - (int) (w * 0.5), (int) (screensize.height * 0.5) - (int) (h * 0.5));
         dialog.setVisible(true);
-
     }
 
 

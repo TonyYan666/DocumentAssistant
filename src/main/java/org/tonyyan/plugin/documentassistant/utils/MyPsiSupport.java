@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.LangDataKeys;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.tree.java.PsiLiteralExpressionImpl;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.PsiUtil;
 
@@ -221,7 +222,12 @@ public abstract class MyPsiSupport {
         List<JvmAnnotationAttribute> attributes = psiAnnotation.getAttributes();
         for (JvmAnnotationAttribute attr : attributes) {
             if (attr.getAttributeName().trim().equals(attrName.trim())) {
-                String txt = attr.getAttributeValue().getSourceElement().getText();
+//                String txt = attr.getAttributeValue().getSourceElement().getText();
+                String txt = attr.getAttributeValue().toString();
+                if(attr instanceof PsiNameValuePair){
+                    PsiNameValuePair psiNameValuePair = (PsiNameValuePair) attr;
+                    txt = psiNameValuePair.getValue().getText();
+                }
                 if (txt.contains("\"")) {
                     txt = txt.substring(1, txt.length() - 1);
                 }

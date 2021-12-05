@@ -1,0 +1,29 @@
+<idea-plugin>
+    <id>org.tonyyan.plugin.documentassistant</id>
+    <name>Document Assistant</name>
+    <version>1.3</version>
+    <vendor email="tony308001970@qq.com">TONY YAN</vendor>
+
+    <description><![CDATA[ Document Assistant is SpringMVC RestFull API markdown document generator.
+   It can analyse java class what mark with @RestController. It very easy to generate input and output parameters by your code and doc comments. ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="org.tonyyan.plugin.documentassistant.ControllerDocumentGenerator"
+                class="org.tonyyan.plugin.documentassistant.ControllerDocumentGenerator"
+                text="REST API Document generate"
+                description="REST API Document generate By RestController from SpringMVC" popup="false">
+            <add-to-group group-id="GenerateGroup" anchor="last"/>
+        </action>
+    </actions>
+
+
+</idea-plugin>
