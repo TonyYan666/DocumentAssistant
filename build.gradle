@@ -4,8 +4,8 @@ plugins {
 //    id 'org.jetbrains.intellij' version "1.2.1"
 }
 
-group 'org.tonyyan'
-version '1.7'
+group 'com.smileframework.plugin'
+version '1.8'
 
 sourceCompatibility = 1.8
 

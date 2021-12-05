@@ -51,7 +51,7 @@ public class RestDocumentGenerator {
     }
 
     public String requestPart() {
-        StringBuffer stringBuffer = new StringBuffer("###请求参数<业务参数>\n \n");
+        StringBuffer stringBuffer = new StringBuffer("### 请求参数<业务参数>\n \n");
         List<FieldDefinition> fieldDefinitions = this.definition.getRequest();
         if (fieldDefinitions == null || fieldDefinitions.isEmpty()) {
             stringBuffer.append("无参数\n");
@@ -69,7 +69,7 @@ public class RestDocumentGenerator {
         if (fieldDefinitions == null || fieldDefinitions.isEmpty()) {
             return "";
         }
-        StringBuffer stringBuffer = new StringBuffer("###请求参数Json格式\n \n");
+        StringBuffer stringBuffer = new StringBuffer("### 请求参数Json格式\n \n");
         stringBuffer.append("```\n");
         stringBuffer.append(this.fieldDefinitionJson(fieldDefinitions));
         stringBuffer.append("\n```\n");
@@ -77,7 +77,7 @@ public class RestDocumentGenerator {
     }
 
     public String responsePart() {
-        StringBuffer stringBuffer = new StringBuffer("###返回参数\n \n");
+        StringBuffer stringBuffer = new StringBuffer("### 返回参数\n \n");
         stringBuffer.append("|参数名|必选|类型|说明|\n");
         stringBuffer.append("|:----    |:---|:----- |-----   |\n");
         List<FieldDefinition> fieldDefinitions = this.definition.getResponse();
@@ -86,7 +86,7 @@ public class RestDocumentGenerator {
     }
 
     public String responseJsonPart() {
-        StringBuffer stringBuffer = new StringBuffer("###返回参数Json格式\n \n");
+        StringBuffer stringBuffer = new StringBuffer("### 返回参数Json格式\n \n");
         stringBuffer.append("```\n");
         List<FieldDefinition> fieldDefinitions = this.definition.getResponse();
         stringBuffer.append(this.fieldDefinitionJson(fieldDefinitions));
