@@ -1,14 +1,29 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        maven { url 'https://plugins.gradle.org/m2/' }
+        maven { url 'https://oss.sonatype.org/content/repositories/releases/' }
+        maven { url 'https://dl.bintray.com/jetbrains/intellij-plugin-service' }
+        maven { url 'https://dl.bintray.com/jetbrains/intellij-third-party-dependencies/' }
+    }
+    // https://github.com/JetBrains/gradle-intellij-plugin/ 关注开发插件版本
+    dependencies {
+        classpath "org.jetbrains.intellij.plugins:gradle-intellij-plugin:0.6.5"
+    }
+}
+
+
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.4.21'
-//    id 'org.jetbrains.intellij' version "1.2.1"
+//    id 'org.jetbrains.intellij' version '0.4.21'
+    id 'org.jetbrains.intellij' version '0.6.5'
 }
 
 group 'com.smileframework.plugin'
-version '1.8'
+version '1.9.0-java.RELEASE'
 
-sourceCompatibility = 1.8
-
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 
 
 //repositories {
@@ -18,6 +33,7 @@ sourceCompatibility = 1.8
 //    gradlePluginPortal()
 //}
 repositories {
+    jcenter()
     mavenCentral()
 }
 
@@ -27,11 +43,20 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version 'LATEST-EAP-SNAPSHOT'
+    pluginName 'DocumentAssistant'
+    sandboxDirectory = "${rootProject.rootDir}/idea-sandbox"
+    version '2021.2.3'
     plugins = ['properties', 'java']
+    updateSinceUntilBuild false
+    downloadSources = true
 }
 patchPluginXml {
     changeNotes """
-      Document Assistant support for lastest IDEA 2021.3 version .<br>
+      Document Assistant support for lastest IDEA 2021.2 version .<br>
+      Fix cycle recursion problem of field parser
       <em>fix p</em>"""
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
 }

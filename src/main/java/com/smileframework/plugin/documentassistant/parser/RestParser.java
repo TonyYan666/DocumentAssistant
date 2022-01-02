@@ -216,10 +216,13 @@ public class RestParser extends Parser {
                     if (StringUtils.isEmpty(contextPart)) {
                         contextPart = yamlParser.findProperty("server", "context-path");
                     }
-
-                    if (!StringUtils.isEmpty(contextPart)) {
-                        break;
-                    }
+                }else if(psiFile.getName().contains(".properties")){
+                    PropertiesFileParser propertiesFileParser = new PropertiesFileParser(psiFile);
+                    propertiesFileParser.loadProperties();
+                    contextPart = propertiesFileParser.getProperty("server.servlet.context-path","");
+                }
+                if (!StringUtils.isEmpty(contextPart)) {
+                    break;
                 }
             }
         }
