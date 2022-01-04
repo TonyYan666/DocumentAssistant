@@ -37,6 +37,7 @@ public class ObjectParser extends Parser {
 
     /**
      * 添加解析器的父引用类列表（防止循环递归）
+     *
      * @param parentClzSet
      */
     public void addParentClz(Set<String> parentClzSet) {
@@ -131,7 +132,7 @@ public class ObjectParser extends Parser {
         if (fieldClass == null) {
             return false;
         }
-        return this.parentClzSet.contains(fieldClass);
+        return this.parentClzSet.contains(fieldClass.getQualifiedName());
     }
 
 
