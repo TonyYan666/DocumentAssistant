@@ -37,7 +37,7 @@ public class ControllerDocumentGenerator extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent anActionEvent) {
         RestFulDefinition definition = parseSelectedMethod(anActionEvent);
-        if(definition != null){
+        if (definition != null) {
             RestDocumentGenerator generator = new RestDocumentGenerator(definition);
             String content = generator.generate();
             openDialog(content);
@@ -62,13 +62,17 @@ public class ControllerDocumentGenerator extends AnAction {
     }
 
 
-    private RestFulDefinition parseSelectedMethod(AnActionEvent anActionEvent){
+    private RestFulDefinition parseSelectedMethod(AnActionEvent anActionEvent) {
         PsiJavaFile javaFile = MyPsiSupport.getPsiJavaFile(anActionEvent);
+        assert javaFile != null;
         //获得相应带有@RestController 的类
         List<PsiClass> targetClassList = MyPsiSupport.getPsiClasses(javaFile, SpringContact.ANNOTATION_RESCONTROLLER);
+        if (targetClassList.size() == 0) {
+            targetClassList = MyPsiSupport.getPsiClasses(javaFile, SpringContact.ANNOTATION_CONTROLLER);
+        }
         this.psiMethods = this.getMethod(targetClassList);
         PsiMethod psiMethod = this.getPsiMethodSelecting(anActionEvent);
-        if(psiMethod != null){
+        if (psiMethod != null) {
             RestParser parser = new RestParser(psiMethod);
             parser.parseDefinition();
             return parser.getDefinition();
@@ -94,9 +98,13 @@ public class ControllerDocumentGenerator extends AnAction {
         List<PsiMethod> postMethods = MyPsiSupport.getPsiMethods(classes, SpringContact.ANNOTATION_POSTMAPPING);
         List<PsiMethod> requestMethods = MyPsiSupport.getPsiMethods(classes, SpringContact.ANNOTATION_REQUESTMAPPING);
         List<PsiMethod> getMethods = MyPsiSupport.getPsiMethods(classes, SpringContact.ANNOTATION_GETMAPPING);
+        List<PsiMethod> putMethods = MyPsiSupport.getPsiMethods(classes, SpringContact.ANNOTATION_PUTMAPPING);
+        List<PsiMethod> deleteMethods = MyPsiSupport.getPsiMethods(classes, SpringContact.ANNOTATION_DELETEMAPPING);
         Set<PsiMethod> targetMethod = new HashSet<>();
         targetMethod.addAll(postMethods);
         targetMethod.addAll(getMethods);
+        targetMethod.addAll(putMethods);
+        targetMethod.addAll(deleteMethods);
         targetMethod.addAll(requestMethods);
         return targetMethod;
     }

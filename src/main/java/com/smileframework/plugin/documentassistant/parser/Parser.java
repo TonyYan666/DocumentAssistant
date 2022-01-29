@@ -3,9 +3,9 @@ package com.smileframework.plugin.documentassistant.parser;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiParameter;
 import com.intellij.psi.PsiType;
-import com.smileframework.plugin.documentassistant.utils.MyPsiSupport;
 import com.smileframework.plugin.documentassistant.contact.CommonContact;
 import com.smileframework.plugin.documentassistant.contact.MyContact;
+import com.smileframework.plugin.documentassistant.utils.MyPsiSupport;
 
 public abstract class Parser {
 

@@ -2,16 +2,19 @@ package com.smileframework.plugin.documentassistant.parser;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
-import com.intellij.psi.*;
+import com.intellij.psi.PsiAnnotation;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiMethod;
+import com.intellij.psi.PsiParameter;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.smileframework.plugin.documentassistant.contact.SpringContact;
 import com.smileframework.plugin.documentassistant.definition.BodyType;
 import com.smileframework.plugin.documentassistant.definition.FieldDefinition;
-import com.smileframework.plugin.documentassistant.utils.MyPsiSupport;
-import com.smileframework.plugin.documentassistant.utils.StringUtils;
 import com.smileframework.plugin.documentassistant.definition.RestFulDefinition;
 import com.smileframework.plugin.documentassistant.utils.JavaDocUtils;
+import com.smileframework.plugin.documentassistant.utils.MyPsiSupport;
+import com.smileframework.plugin.documentassistant.utils.StringUtils;
 
 import java.util.List;
 
@@ -49,7 +52,6 @@ public class RestParser extends Parser {
         definition.setResponse(getResponseDefinitions());
         this.definition = definition;
     }
-
 
     /**
      * 获得返回参数
@@ -95,7 +97,6 @@ public class RestParser extends Parser {
         return null;
     }
 
-
     /**
      * 获得参数请求类型
      *
@@ -113,7 +114,6 @@ public class RestParser extends Parser {
         }
         return BodyType.FormData;
     }
-
 
     /**
      * 获得参数请求类型
@@ -133,6 +133,41 @@ public class RestParser extends Parser {
         return null;
     }
 
+    /**
+     * 获得返回参数类型
+     *
+     * @return
+     */
+    public BodyType getResponseBodyType() {
+        PsiParameter[] parameters = this.psiMethod.getParameterList().getParameters();
+        if (parameters != null && parameters.length > 0) {
+            for (PsiParameter psiParameter : parameters) {
+                PsiAnnotation annotation = MyPsiSupport.getPsiAnnotation(psiParameter, SpringContact.ANNOTATION_RESPONSEBODY);
+                if (annotation != null) {
+                    return BodyType.RequestBody;
+                }
+            }
+        }
+        return BodyType.FormData;
+    }
+
+    /**
+     * 获得返回参数类型
+     *
+     * @return
+     */
+    public PsiParameter getResponseBodyParam() {
+        PsiParameter[] parameters = this.psiMethod.getParameterList().getParameters();
+        if (parameters != null && parameters.length > 0) {
+            for (PsiParameter psiParameter : parameters) {
+                PsiAnnotation annotation = MyPsiSupport.getPsiAnnotation(psiParameter, SpringContact.ANNOTATION_RESPONSEBODY);
+                if (annotation != null) {
+                    return psiParameter;
+                }
+            }
+        }
+        return null;
+    }
 
     /**
      * 获得方法描述
@@ -151,7 +186,6 @@ public class RestParser extends Parser {
     private String getControllerDesc() {
         return JavaDocUtils.getText(psiMethod.getContainingClass().getDocComment());
     }
-
 
     /***
      * 获得Http请求方法
@@ -177,9 +211,23 @@ public class RestParser extends Parser {
         if (postMapAn != null) {
             httpMethod = "POST";
         }
+
+        PsiAnnotation putMapAn = MyPsiSupport.getPsiAnnotation(psiMethod, SpringContact.ANNOTATION_PUTMAPPING);
+        if (putMapAn != null) {
+            httpMethod = "PUT";
+        }
+
+        PsiAnnotation deleteMapAn = MyPsiSupport.getPsiAnnotation(psiMethod, SpringContact.ANNOTATION_DELETEMAPPING);
+        if (deleteMapAn != null) {
+            httpMethod = "DELETE";
+        }
+
+        PsiAnnotation getMapAn = MyPsiSupport.getPsiAnnotation(psiMethod, SpringContact.ANNOTATION_GETMAPPING);
+        if (getMapAn != null) {
+            httpMethod = "GET";
+        }
         return httpMethod;
     }
-
 
     /**
      * 获得方法级别的Uri
@@ -216,10 +264,10 @@ public class RestParser extends Parser {
                     if (StringUtils.isEmpty(contextPart)) {
                         contextPart = yamlParser.findProperty("server", "context-path");
                     }
-                }else if(psiFile.getName().contains(".properties")){
+                } else if (psiFile.getName().contains(".properties")) {
                     PropertiesFileParser propertiesFileParser = new PropertiesFileParser(psiFile);
                     propertiesFileParser.loadProperties();
-                    contextPart = propertiesFileParser.getProperty("server.servlet.context-path","");
+                    contextPart = propertiesFileParser.getProperty("server.servlet.context-path", "");
                 }
                 if (!StringUtils.isEmpty(contextPart)) {
                     break;
@@ -249,6 +297,15 @@ public class RestParser extends Parser {
             methodUriPart = getPartOfUri(postMapAn);
         }
 
+        PsiAnnotation putMapAn = MyPsiSupport.getPsiAnnotation(psiMethod, SpringContact.ANNOTATION_PUTMAPPING);
+        if (putMapAn != null) {
+            methodUriPart = getPartOfUri(putMapAn);
+        }
+
+        PsiAnnotation deleteMapAn = MyPsiSupport.getPsiAnnotation(psiMethod, SpringContact.ANNOTATION_DELETEMAPPING);
+        if (deleteMapAn != null) {
+            methodUriPart = getPartOfUri(deleteMapAn);
+        }
 
         String classUriPart = "";
         PsiAnnotation clzReqMapAn = MyPsiSupport.getPsiAnnotation(psiMethod.getContainingClass(), SpringContact.ANNOTATION_REQUESTMAPPING);
@@ -283,4 +340,5 @@ public class RestParser extends Parser {
         }
         return contextPart + uri;
     }
+
 }
