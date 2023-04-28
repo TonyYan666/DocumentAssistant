@@ -159,7 +159,6 @@ public abstract class MyPsiSupport {
     }
 
 
-
     /**
      * 通过annotation 的全限定名称 获得psiField 的某个PsiAnnotation 对象
      *
@@ -224,7 +223,7 @@ public abstract class MyPsiSupport {
             if (attr.getAttributeName().trim().equals(attrName.trim())) {
 //                String txt = attr.getAttributeValue().getSourceElement().getText();
                 String txt = attr.getAttributeValue().toString();
-                if(attr instanceof PsiNameValuePair){
+                if (attr instanceof PsiNameValuePair) {
                     PsiNameValuePair psiNameValuePair = (PsiNameValuePair) attr;
                     txt = psiNameValuePair.getValue().getText();
                 }
@@ -316,7 +315,7 @@ public abstract class MyPsiSupport {
     public static PsiType getGenericsType(PsiType psiType, Integer index) {
         Map<PsiTypeParameter, PsiType> map = resolveGenericsMap(psiType);
         PsiClassType psiClassType = (PsiClassType) psiType;
-        if(psiClassType.resolve().getTypeParameters() == null || psiClassType.resolve().getTypeParameters().length - 1 < index){
+        if (psiClassType.resolve().getTypeParameters() == null || psiClassType.resolve().getTypeParameters().length - 1 < index) {
             return null;
         }
         PsiType paramType = map.get(psiClassType.resolve().getTypeParameters()[index]);
@@ -361,6 +360,7 @@ public abstract class MyPsiSupport {
 
     /**
      * 通过泛型名称获得泛型PsiType
+     *
      * @param psiType
      * @param genericsName
      * @return
@@ -387,6 +387,19 @@ public abstract class MyPsiSupport {
             return 0;
         }
         return psiClassType.resolve().getTypeParameters().length;
+    }
+
+
+    /**
+     * 通过PsiType和泛型参数，创建一个新的PsiType
+     *
+     * @param psiClass
+     * @param parameters
+     * @return
+     */
+    public static PsiClassType generatePsiClassType(PsiClass psiClass, List<PsiType> parameters) {
+        PsiElementFactory psiElementFactory = JavaPsiFacade.getElementFactory(psiClass.getProject());
+        return psiElementFactory.createType(psiClass, parameters.toArray(new PsiType[parameters.size()]));
     }
 
 

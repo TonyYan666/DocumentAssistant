@@ -21,7 +21,7 @@ plugins {
 }
 
 group 'com.smileframework.plugin'
-version '1.7.0.RELEASE'
+version '1.7.2.RELEASE'
 
 sourceCompatibility = JavaVersion.VERSION_11
 targetCompatibility = JavaVersion.VERSION_11
@@ -39,7 +39,7 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
@@ -55,6 +55,7 @@ patchPluginXml {
     changeNotes """
       Document Assistant support for lastest IDEA 2021.2 version .<br>
       Fix cycle recursion problem of field parser
+      Fix could not be parsed the deep level object from list or map
       <em>fix p</em>"""
 }
 

@@ -125,14 +125,14 @@ public class ObjectParser extends Parser {
     /**
      * 检查是否存在无限递归
      *
-     * @param fieldClass
      * @return
      */
-    private boolean checkInfiniteRecursion(PsiClass fieldClass) {
-        if (fieldClass == null) {
+    private boolean checkInfiniteRecursion(FieldDefinition definition, PsiType fieldType, PsiField psiField) {
+        PsiClass psiClass = this.extractSubType(definition, fieldType, psiField);
+        if (psiClass == null) {
             return false;
         }
-        return this.parentClzSet.contains(fieldClass.getQualifiedName());
+        return this.parentClzSet.contains(psiClass.getQualifiedName());
     }
 
 
@@ -147,17 +147,28 @@ public class ObjectParser extends Parser {
     private void parseSubFieldDefinitions(FieldDefinition definition, PsiType fieldType, PsiField psiField, PsiClass fieldClass) {
         Set<String> fieldParentClzSet = new HashSet<>();
         fieldParentClzSet.addAll(this.parentClzSet);
-        if (fieldClass != null) {
-            fieldParentClzSet.add(fieldClass.getQualifiedName());
+        PsiClass psiClass = this.extractSubType(definition, fieldType, psiField);
+        if (psiClass != null) {
+            fieldParentClzSet.add(psiClass.getQualifiedName());
+            ObjectParser objectParser = new ObjectParser(fieldType, this.project, layer + 1);
+            objectParser.addParentClz(fieldParentClzSet);
+            objectParser.parseDefinition();
+            definition.setSubFieldDefinitions(objectParser.getFieldDefinitions());
         }
+    }
+
+    /**
+     * 提取深层对象类型(List提取泛型 Map 提取value泛型）
+     *
+     * @param definition
+     * @param fieldType
+     * @param psiField
+     * @return
+     */
+    private PsiClass extractSubType(FieldDefinition definition, PsiType fieldType, PsiField psiField) {
         if (definition.getType().equals(TypeTranslator.TYPE_OBJ)) {
             PsiClass psiClass = MyPsiSupport.getPsiClass(fieldType);
-            if (psiClass != null) {
-                ObjectParser objectParser = new ObjectParser(fieldType, this.project, layer + 1);
-                objectParser.addParentClz(fieldParentClzSet);
-                objectParser.parseDefinition();
-                definition.setSubFieldDefinitions(objectParser.getFieldDefinitions());
-            }
+            return psiClass;
         } else if (definition.getType().equals(TypeTranslator.TYPE_LIST)) {
             PsiType genericsType = PsiUtil.extractIterableTypeParameter(psiField.getType(), true);
             if (genericsType == null) {
@@ -167,23 +178,12 @@ public class ObjectParser extends Parser {
             if (listGenericsType != null) {
                 genericsType = listGenericsType;
             }
-            psiClass = MyPsiSupport.getPsiClass(genericsType);
-            if (psiClass != null) {
-                ObjectParser objectParser = new ObjectParser(genericsType, this.project, layer + 1);
-                objectParser.addParentClz(fieldParentClzSet);
-                objectParser.parseDefinition();
-                definition.setSubFieldDefinitions(objectParser.getFieldDefinitions());
-            }
+            return MyPsiSupport.getPsiClass(genericsType);
         } else if (definition.getType().equals(TypeTranslator.TYPE_MAP)) {
             PsiType valueGenericsType = MyPsiSupport.getGenericsType(psiField.getType(), 1);
-            psiClass = MyPsiSupport.getPsiClass(valueGenericsType);
-            if (psiClass != null) {
-                ObjectParser objectParser = new ObjectParser(valueGenericsType, this.project, layer + 1);
-                objectParser.addParentClz(fieldParentClzSet);
-                objectParser.parseDefinition();
-                definition.setSubFieldDefinitions(objectParser.getFieldDefinitions());
-            }
+            return MyPsiSupport.getPsiClass(valueGenericsType);
         }
+        return null;
     }
 
 
@@ -211,7 +211,7 @@ public class ObjectParser extends Parser {
         } else {
             definition.setType(TypeTranslator.docTypeTranslate(fieldClass.getQualifiedName()));
         }
-        if (this.checkInfiniteRecursion(fieldClass)) {
+        if (this.checkInfiniteRecursion(definition, fieldType, psiField)) {
             return definition;
         }
         this.parseSubFieldDefinitions(definition, fieldType, psiField, fieldClass);

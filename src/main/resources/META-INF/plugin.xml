@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>org.tonyyan.plugin.documentassistant</id>
     <name>Document Assistant</name>
-    <version>1.7.0.RELEASE</version>
+    <version>1.7.2.RELEASE</version>
     <vendor email="tony308001970@qq.com">TONY YAN</vendor>
 
     <description><![CDATA[
